@@ -65,7 +65,7 @@ if __name__=='__main__':
     with open('../input/$dayFolderName-$part.input', 'r') as f:
         inputOfDay = f.read()
     test()
-    #solve(inputOfDay)
+    #print(solve(inputOfDay))
 "@
 }
 

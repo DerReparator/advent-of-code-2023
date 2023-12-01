@@ -2,9 +2,14 @@
 
 import os
 from typing import List, Tuple
+import re
 
 def solve(inputOfDay: str) -> str:
-    pass
+    calibration: int = 0
+    for line in inputOfDay.splitlines():
+        digits: List[str] = re.findall(r'\d', line)
+        calibration += int(f"{digits[0]}{digits[-1]}")
+    return str(calibration)
 
 def test():
     test_cases: List[Tuple[str, str]] = []
@@ -46,5 +51,5 @@ if __name__=='__main__':
     inputOfDay = ''
     with open('../input/day01-1.input', 'r') as f:
         inputOfDay = f.read()
-    test()
-    #solve(inputOfDay)
+    #test()
+    print(solve(inputOfDay))
