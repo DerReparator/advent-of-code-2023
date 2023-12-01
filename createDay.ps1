@@ -28,9 +28,9 @@ def test():
     test_cases: List[Tuple[str, str]] = []
     test_dir: str = "../input_test"
     for test_case_input in [os.path.join(test_dir, fname) for fname in os.listdir(test_dir)]:
-        if test_case_input.endswith("1.input"):
+        if test_case_input.endswith("$part.input"):
             print(f"[DEBUG] Found test case input: {test_case_input}")
-            test_case_expected = test_dir + "/" + test_case_input.removesuffix("$part.input") + "$part.expected"
+            test_case_expected = test_case_input.removesuffix("$part.input") + "$part.expected"
             print(f"[DEBUG] Searching test case expected at: {test_case_expected}")
             if not os.path.exists(test_case_expected):
                 print(f"[WARN] Found no expected file for test case '{test_case_input}'")
