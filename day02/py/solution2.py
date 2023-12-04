@@ -3,6 +3,7 @@
 import re
 import os
 from typing import List, Tuple, Dict
+import math
 
 def parseCube(cube_record: str) -> Tuple[str,int]:
     splitted_record = cube_record.split(" ")
@@ -34,33 +35,31 @@ def checkAmountOfCubes(round_record: Dict[str, int], color: str, amount: int) ->
         return True # this is bad. max number of colors
     return False
 
-def filterGames(games: List[List[Dict[str, int]]]) -> List[int]:
-    ret: List[int] = []
-    for i, game in enumerate(games, start=1):
-        if any([checkAmountOfCubes(round_record, "red", THRESHOLD_RED) for round_record in game]):
-            continue
-        if any([checkAmountOfCubes(round_record, "blue", THRESHOLD_BLUE) for round_record in game]):
-            continue
-        if any([checkAmountOfCubes(round_record, "green", THRESHOLD_GREEN) for round_record in game]):
-            continue
-        ret.append(i)
-    return ret
+def calculatePowerOfGame(game: List[Dict[str, int]]) -> int:
+    max_cubes_per_color: Dict[str, int] = {}
+    for a_round in game:
+        for color, amount in a_round.items():
+            if max_cubes_per_color.get(color) is None\
+            or max_cubes_per_color[color] < amount:
+                max_cubes_per_color[color] = amount
+    return math.prod(max_cubes_per_color.values())
 
-def solve(inputOfDay: str) -> str:
+def solve(input_of_day: str) -> str:
     parsed_games: List[List[Dict[str, int]]] = []
-    for line in inputOfDay.splitlines():
+    for line in input_of_day.splitlines():
         parsed_games.append(parseGame(line))
-    filtered_game_ids = filterGames(parsed_games)
-    print(f"Valid games: {filtered_game_ids}")
-    return str(sum(filtered_game_ids))
+    solution: int = 0
+    for game in parsed_games:
+        solution += calculatePowerOfGame(game)
+    return str(solution)
 
 def test():
     test_cases: List[Tuple[str, str]] = []
     test_dir: str = "../input_test"
     for test_case_input in [os.path.join(test_dir, fname) for fname in os.listdir(test_dir)]:
-        if test_case_input.endswith("1.input"):
+        if test_case_input.endswith("2.input"):
             print(f"[DEBUG] Found test case input: {test_case_input}")
-            test_case_expected = test_case_input.removesuffix("1.input") + "1.expected"
+            test_case_expected = test_case_input.removesuffix("2.input") + "2.expected"
             print(f"[DEBUG] Searching test case expected at: {test_case_expected}")
             if not os.path.exists(test_case_expected):
                 print(f"[WARN] Found no expected file for test case '{test_case_input}'")
@@ -92,7 +91,7 @@ if __name__=='__main__':
     os.chdir(dname)
 
     inputOfDay = ''
-    with open('../input/day02-1.input', 'r') as f:
+    with open('../input/day02-2.input', 'r') as f:
         inputOfDay = f.read()
     #test()
     print(solve(inputOfDay))
