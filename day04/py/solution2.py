@@ -11,16 +11,24 @@ def parse_scratchcard(line: str) -> Scratchcard:
     your_numbers: Set[int] = set([int(nmbr) for nmbr in line.split(": ")[1].split(" | ")[1].split()])
     return Scratchcard(winning=winning_numbers, numbers=your_numbers)
 
-def calculate_points(scratchcard: Scratchcard) -> int:
+def calculate_no_of_won_cards_per_scratchcard(scratchcard: Scratchcard) -> int:
     n: int = len((scratchcard.winning & scratchcard.numbers))
-    if n == 0:
-        return 0
-    else:
-        return 2**(n-1)
+    return n
+
+def run_simulation(no_of_won_cards: List[int]) -> int:
+    amount_of_each_scratchcard: List[int] = [1]*len(no_of_won_cards)
+    for i, matching_numbers in enumerate(no_of_won_cards):
+        for no_of_existing_cards in range(amount_of_each_scratchcard[i]):
+            for n in range(i+1, i+1+matching_numbers):
+                amount_of_each_scratchcard[n] = amount_of_each_scratchcard[n] + 1
+    print(f"[DEBUG] amounts: {amount_of_each_scratchcard}")
+    return sum(amount_of_each_scratchcard)
+
 
 def solve(inputOfDay: str) -> str:
-    scratchcards: List[Scratchcard] = [parse_scratchcard(line) for line in inputOfDay.splitlines()]
-    return str(sum([calculate_points(sc) for sc in scratchcards]))
+    original_scratchcards: List[Scratchcard] = [parse_scratchcard(line) for line in inputOfDay.splitlines()]
+    no_of_won_cards: List[int] = [calculate_no_of_won_cards_per_scratchcard(sc) for sc in original_scratchcards]
+    return str(run_simulation(no_of_won_cards))
 
 def test():
     test_cases: List[Tuple[str, str]] = []
@@ -62,5 +70,5 @@ if __name__=='__main__':
     inputOfDay = ''
     with open('../input/day04-2.input', 'r') as f:
         inputOfDay = f.read()
-    test()
-    #print(solve(inputOfDay))
+    #test()
+    print(solve(inputOfDay))
