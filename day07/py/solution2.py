@@ -2,9 +2,96 @@
 
 import os
 from typing import List, Tuple
+from enum import IntEnum
+from functools import total_ordering
+import re
+
+# Five of a kind
+# Four of a kind
+# Full house
+# Three of a kind
+# Two pair
+# One pair
+# High card
+
+class HandType(IntEnum):
+    HIGH_CARD = 1,
+    ONE_PAIR = 2,
+    TWO_PAIR = 3,
+    THREE_KIND = 4,
+    FULL_HOUSE = 5,
+    FOUR_KIND = 6,
+    FIVE_KIND = 7
+
+@total_ordering
+class HandBid:
+    def __init__(self, hand: str, bid: int) -> None:
+        self.hand = hand
+        self.bid = bid
+        self.hand_type = self.parse_hand_type(hand)
+
+    def parse_hand_type(self, hand: str) -> HandType:
+        # special case
+        if hand == "JJJJJ":
+            return HandType.FIVE_KIND
+        curr_highest_hand_type: HandType = HandType.HIGH_CARD
+        for substitute in hand:
+            substituted_hand = ''.join(sorted(hand.replace("J", substitute)))
+            print(f"[DEBUG] Testing substituted ({substitute}) hand {substituted_hand}")
+            if re.match(r"([AKQJT98765432])\1{4}", substituted_hand):
+                if curr_highest_hand_type < HandType.FIVE_KIND:
+                    curr_highest_hand_type = HandType.FIVE_KIND
+            if re.search(r"([AKQJT98765432])\1{3}", substituted_hand):
+                if curr_highest_hand_type < HandType.FOUR_KIND:
+                    curr_highest_hand_type = HandType.FOUR_KIND
+            if re.search(r"^([AKQJT98765432])\1{1,2}([AKQJT98765432])\2{1,2}$", substituted_hand):
+                if curr_highest_hand_type < HandType.FULL_HOUSE:
+                    curr_highest_hand_type = HandType.FULL_HOUSE
+            if re.search(r"([AKQJT98765432])\1{2}", substituted_hand):
+                if curr_highest_hand_type < HandType.THREE_KIND:
+                    curr_highest_hand_type = HandType.THREE_KIND
+            two_pair_result = re.findall(r"([AKQJT98765432])\1{1}", substituted_hand)
+            if two_pair_result:
+                if len(two_pair_result) == 2:
+                    if curr_highest_hand_type < HandType.TWO_PAIR:
+                        curr_highest_hand_type = HandType.TWO_PAIR
+                else:
+                    if curr_highest_hand_type < HandType.ONE_PAIR:
+                        curr_highest_hand_type = HandType.ONE_PAIR
+        return curr_highest_hand_type
+
+    def calculate_winning(self, rank: int) -> int:
+        return self.bid * rank
+    
+    def card_is_lower(self, card_a: str, card_b: str) -> bool:
+        cards = "J23456789TQKA"
+        return cards.index(card_a) < cards.index(card_b)
+
+    def __lt__(self, other):
+        if other.hand_type == self.hand_type:
+            for my_card, other_card in zip(self.hand, other.hand):
+                if my_card == other_card:
+                    continue
+                return self.card_is_lower(my_card, other_card)
+        return self.hand_type < other.hand_type
+    
+    def __eq__(self, __value: object) -> bool:
+        # very naive implementation that assumes that '__value' is always of type HandBid
+        return self.hand == __value.hand
+    
+    def __repr__(self) -> str:
+        return f"{self.hand} ({self.hand_type.name}) bids {self.bid}"
+
+def parse_hand_bit(input_str: str) -> HandBid:
+    return HandBid(input_str.split()[0], int(input_str.split()[1]))
 
 def solve(inputOfDay: str) -> str:
-    pass
+    hands: List[HandBid] = [parse_hand_bit(h) for h in inputOfDay.splitlines()]
+    winnings: int = 0
+    for rank, hand in enumerate(sorted(hands), start=1):
+        print(f"[DEBUG] {rank}: {hand}")
+        winnings = winnings + rank * hand.bid
+    return str(winnings)
 
 def test():
     test_cases: List[Tuple[str, str]] = []
@@ -46,5 +133,5 @@ if __name__=='__main__':
     inputOfDay = ''
     with open('../input/day07-2.input', 'r') as f:
         inputOfDay = f.read()
-    test()
-    #print(solve(inputOfDay))
+    #test()
+    print(solve(inputOfDay))
