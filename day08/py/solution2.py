@@ -28,16 +28,27 @@ def solve(inputOfDay: str) -> str:
     movements = inputOfDay.splitlines()[0]
     network = parse_network(inputOfDay)
     solvers: List[Solver] = [Solver(network, initial_node, movements) for initial_node in network.keys() if initial_node.endswith('A')]
-    no_of_steps: int = 0
-    curr_solvers_state: str = "A" * len(solvers)
-    while curr_solvers_state != "Z"*len(solvers):
-        state_as_list = list(curr_solvers_state)
-        for i, solver in enumerate(solvers):
-            state_as_list[i] = solver.step()
-        no_of_steps = no_of_steps + 1
-        curr_solvers_state = ''.join(state_as_list)
-        print(curr_solvers_state)
-    return str(no_of_steps)
+    
+    # how long does every solution need to come to ZZZ?
+    for solver_index, solver in enumerate(solvers):
+        print()
+        no_of_steps: int = 0
+        found_zzz: int = 0
+        while found_zzz < 5:
+            while solver.step()[-1] != "Z":
+                no_of_steps = no_of_steps + 1
+            found_zzz = found_zzz + 1
+            print(f"Solver {solver_index}: ...Z @ {no_of_steps}")
+
+    # curr_solvers_state: str = "A" * len(solvers)
+    # while curr_solvers_state != "Z"*len(solvers):
+    #     state_as_list = list(curr_solvers_state)
+    #     for i, solver in enumerate(solvers):
+    #         state_as_list[i] = solver.step()
+    #     no_of_steps = no_of_steps + 1
+    #     curr_solvers_state = ''.join(state_as_list)
+    #     print(curr_solvers_state)
+    return str("dummy")
 
 def test():
     test_cases: List[Tuple[str, str]] = []
