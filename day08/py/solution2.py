@@ -2,6 +2,8 @@
 
 import os
 from typing import List, Tuple, Dict
+import math
+from functools import reduce
 
 class Solver:
     def __init__(self, network: Dict[str, Tuple[str, str]], initial_node: str, movements: str) -> None:
@@ -17,6 +19,9 @@ class Solver:
             self.curr_node = self.network[self.curr_node][1]
         self.curr_movement = (self.curr_movement + 1) % len(self.movements)
         return self.curr_node[-1]
+    
+    def __repr__(self) -> str:
+        return f"Solver@{self.curr_node};step={self.curr_movement}"
 
 def parse_network(inputOfDay: str) -> Dict[str, Tuple[str, str]]:
     network: Dict[str, Tuple[str, str]] = {}
@@ -28,18 +33,15 @@ def solve(inputOfDay: str) -> str:
     movements = inputOfDay.splitlines()[0]
     network = parse_network(inputOfDay)
     solvers: List[Solver] = [Solver(network, initial_node, movements) for initial_node in network.keys() if initial_node.endswith('A')]
-    
+    solved_after: List[int] = []
     # how long does every solution need to come to ZZZ?
-    for solver_index, solver in enumerate(solvers):
-        print()
-        no_of_steps: int = 0
-        found_zzz: int = 0
-        while found_zzz < 5:
-            while solver.step()[-1] != "Z":
-                no_of_steps = no_of_steps + 1
-            found_zzz = found_zzz + 1
-            print(f"Solver {solver_index}: ...Z @ {no_of_steps}")
-
+    for solver in solvers:
+        print(f"[DEBUG] Starting to solve {solver}")
+        no_of_steps: int = 1
+        while solver.step()[-1] != "Z":
+            no_of_steps = no_of_steps + 1
+        solved_after.append(no_of_steps)
+        print("[DEBUG] Done.")
     # curr_solvers_state: str = "A" * len(solvers)
     # while curr_solvers_state != "Z"*len(solvers):
     #     state_as_list = list(curr_solvers_state)
@@ -48,7 +50,8 @@ def solve(inputOfDay: str) -> str:
     #     no_of_steps = no_of_steps + 1
     #     curr_solvers_state = ''.join(state_as_list)
     #     print(curr_solvers_state)
-    return str("dummy")
+    print(f"[DEBUG] Solved after: {solved_after}")
+    return math.lcm(*solved_after)
 
 def test():
     test_cases: List[Tuple[str, str]] = []
@@ -90,5 +93,5 @@ if __name__=='__main__':
     inputOfDay = ''
     with open('../input/day08-2.input', 'r') as f:
         inputOfDay = f.read()
-    #test()
+    test()
     print(solve(inputOfDay))

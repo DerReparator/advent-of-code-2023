@@ -48,4 +48,8 @@ Solver 5: ...Z @ 82272<br/>
 Solver 5: ...Z @ 102840<br/>
 
 > 13200 22410 18726 18112 16270 20568
+
+**THE ABOVE WAS GENERATED WITH A OFF-BY-1-ERROR!**. Here is the correct amount of steps:
+
+> 13201, 22411, 18727, 18113, 16271, 20569
 </details>
