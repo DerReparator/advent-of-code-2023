@@ -3,8 +3,29 @@
 import os
 from typing import List, Tuple
 
+def parse_history(history_str: str) -> List[int]:
+    history = [int(value) for value in history_str.split()]
+    history.reverse()
+    return history
+
 def solve(inputOfDay: str) -> str:
-    pass
+    solution: int = 0
+    for history in [parse_history(s) for s in inputOfDay.splitlines()]:
+        solution = solution + extrapolate_history(history)[-1]
+    return str(solution)
+
+def extrapolate_history(history: List[int]) -> List[int]:
+    next_history: List[int] = []
+    is_all_zeroes = history[0] == 0
+    for i in range(len(history) - 1):
+        if history[i + 1] != 0:
+            is_all_zeroes = False
+        next_history.append(history[i + 1] - history[i])
+    if is_all_zeroes:
+        history.append(0)
+    else:
+        history.append(extrapolate_history(next_history)[-1] + history[-1])
+    return history
 
 def test():
     test_cases: List[Tuple[str, str]] = []
@@ -46,5 +67,5 @@ if __name__=='__main__':
     inputOfDay = ''
     with open('../input/day09-2.input', 'r') as f:
         inputOfDay = f.read()
-    test()
-    #print(solve(inputOfDay))
+    #test()
+    print(solve(inputOfDay))
